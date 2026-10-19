@@ -4,7 +4,7 @@
 
 ## Запуск
 
-Нужен Python 3.10 или новее. Команды для macOS и Linux:
+Нужен Python 3.11 или новее. Команды для macOS и Linux:
 
 ```bash
 python3 -m venv .venv
