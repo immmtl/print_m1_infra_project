@@ -1,3 +1,4 @@
+import secrets
 import string
 
 from fastapi import FastAPI
@@ -26,6 +27,10 @@ CRITERIA = {
 
 class PasswordRequest(BaseModel):
     password: str = Field(min_length=1, max_length=256)
+
+
+class GenerateRequest(BaseModel):
+    length: int = Field(default=16, ge=12, le=128, strict=True)
 
 
 app = FastAPI(
@@ -90,3 +95,18 @@ def check_password(data: PasswordRequest):
         "checks": checks,
         "recommendations": [CRITERIA[name] for name, passed in checks.items() if not passed],
     }
+
+
+@app.post("/generate")
+def generate_password(data: GenerateRequest):
+    groups = (string.ascii_lowercase, string.ascii_uppercase, string.digits, string.punctuation)
+    alphabet = "".join(groups)
+
+    while True:
+        chars = [secrets.choice(group) for group in groups]
+        chars += [secrets.choice(alphabet) for _ in range(data.length - len(chars))]
+        secrets.SystemRandom().shuffle(chars)
+        password = "".join(chars)
+        result = check_password(PasswordRequest(password=password))
+        if result["level"] == "strong":
+            return {"password": password, "length": data.length}
