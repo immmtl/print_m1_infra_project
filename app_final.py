@@ -1,3 +1,4 @@
+import os
 import secrets
 import string
 
@@ -6,6 +7,9 @@ from pydantic import BaseModel, Field
 
 
 APP_VERSION = "0.1.0"
+DEFAULT_PASSWORD_LENGTH = int(os.getenv("DEFAULT_PASSWORD_LENGTH", "16"))
+if not 12 <= DEFAULT_PASSWORD_LENGTH <= 128:
+    raise ValueError("DEFAULT_PASSWORD_LENGTH должна быть от 12 до 128")
 
 COMMON_PASSWORDS = {
     "123456", "12345678", "123456789", "1234567890",
@@ -30,7 +34,7 @@ class PasswordRequest(BaseModel):
 
 
 class GenerateRequest(BaseModel):
-    length: int = Field(default=16, ge=12, le=128, strict=True)
+    length: int = Field(default=DEFAULT_PASSWORD_LENGTH, ge=12, le=128, strict=True)
 
 
 app = FastAPI(
